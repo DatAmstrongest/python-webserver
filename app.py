@@ -5,8 +5,8 @@ import random
 REQUEST_COUNT = Counter("app_requests_count", "total app http request count", ["app_name", "endpoint"])
 RANDOM_COUNT = Counter("app_random_count", "increment counter by random value")
 
-APP_PORT = 8080
-METRICS_PORT = 8001
+APP_PORT = 80
+METRICS_PORT = 81
 class HandleRequests(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
