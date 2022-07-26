@@ -1,26 +1,18 @@
-import http.server
-from prometheus_client import start_http_server, Counter
-import random 
+from prometheus_client import make_wsgi_app, Counter
+from wsgiref.simple_server import make_server
 
-REQUEST_COUNT = Counter("app_requests_count", "total app http request count", ["app_name", "endpoint"])
-RANDOM_COUNT = Counter("app_random_count", "increment counter by random value")
+HIT_COUNT = Counter("hit_count", "total app http request count", ["app_name", "endpoint"])
+metrics_app = make_wsgi_app()
 
-APP_PORT = 8080
-METRICS_PORT = 8081
-class HandleRequests(http.server.BaseHTTPRequestHandler):
+def my_app(environ, start_fn):
+    print(start_fn)
+    print(environ)
+    if environ['PATH_INFO'] == '/metrics':
+        return metrics_app(environ, start_fn)
+    HIT_COUNT.labels("prom_python_app",environ['PATH_INFO']).inc()
+    start_fn('200 OK', [])
+    return [b'Hello World']
 
-    def do_GET(self):
-        REQUEST_COUNT.labels("prom_python_app",self.path).inc()
-        random_val = random.random()*10
-        RANDOM_COUNT.inc(random_val)
-
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write(bytes("<html><head><title>First Application</title></head><body style='color:#333; margin-top: 30px;'><center><h2>Welcome to our first Prometheus-Python application.</center></h2></body></html>","utf-8"))
-        self.wfile.close()
-
-if __name__ == "__main__":
-    start_http_server(METRICS_PORT)
-    server = http.server.HTTPServer(("0.0.0.0", APP_PORT),HandleRequests)
-    server.serve_forever()
+if __name__ == '__main__':
+    httpd = make_server('', 8000, my_app)
+    httpd.serve_forever()
