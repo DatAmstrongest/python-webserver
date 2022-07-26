@@ -6,5 +6,4 @@ RUN pip install prometheus_client
 
 CMD ["python", "./app.py"]
 
-EXPOSE 8080
 
