@@ -14,5 +14,5 @@ def my_app(environ, start_fn):
     return [b'Hello World']
 
 if __name__ == '__main__':
-    httpd = make_server('', 8000, my_app)
+    httpd = make_server('0.0.0.0', 8080, my_app)
     httpd.serve_forever()
