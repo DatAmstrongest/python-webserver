@@ -1,5 +1,6 @@
 from prometheus_client import make_wsgi_app, Counter
 from wsgiref.simple_server import make_server
+import http.server
 
 HIT_COUNT = Counter("hit_count", "total app http request count", ["app_name", "endpoint"])
 metrics_app = make_wsgi_app()
